@@ -1,0 +1,181 @@
+basePath: /api/v1
+definitions:
+  auth-service_internal_models.ErrorResponse:
+    properties:
+      error:
+        example: invalid credentials
+        type: string
+    type: object
+  auth-service_internal_models.LoginRequest:
+    properties:
+      user_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+    required:
+    - user_id
+    type: object
+  auth-service_internal_models.LoginResponse:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...
+        type: string
+      refresh_token:
+        example: dGVzdC1yZWZyZXNoLXRva2Vu
+        type: string
+    type: object
+  auth-service_internal_models.MeResponse:
+    properties:
+      user_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+    type: object
+  auth-service_internal_models.RefreshRequest:
+    properties:
+      refresh_token:
+        example: dGVzdC1yZWZyZXNoLXRva2Vu
+        type: string
+    required:
+    - refresh_token
+    type: object
+  auth-service_internal_models.RefreshResponse:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...
+        type: string
+      refresh_token:
+        example: dGVzdC1yZWZyZXNoLXRva2Vu
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API для аутентификации пользователей с JWT токенами
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Auth Service API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Получить access и refresh токены для пользователя по его GUID
+      parameters:
+      - description: User ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth-service_internal_models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.ErrorResponse'
+      summary: Получение пары токенов
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Деавторизует пользователя, инвалидируя refresh токен
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Деавторизация пользователя
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Получить GUID пользователя из токена авторизации
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.MeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Получение GUID текущего пользователя
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Обновить access и refresh токены используя refresh токен
+      parameters:
+      - description: Refresh Token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth-service_internal_models.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.RefreshResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth-service_internal_models.ErrorResponse'
+      summary: Обновление пары токенов
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    description: '"Bearer {token}"'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
