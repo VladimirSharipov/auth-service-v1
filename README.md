@@ -35,10 +35,6 @@
 
 ![Swagger UI - общий вид](screenshots/swagger-main.png)
 
-### Получение access и refresh токенов
-
-![Swagger UI - login](screenshots/swagger-login.png)
-
 ### Обновление пары токенов
 
 ![Swagger UI - refresh](screenshots/swagger-refresh.png)
